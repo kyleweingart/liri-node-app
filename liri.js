@@ -63,6 +63,15 @@ function myTweets() {
  
 
 function spotifySong() {
+  var songName = process.argv[3];
+  console.log(songName);
+  spotify.search({ type: 'track', query: songName }, function(err, data) {
+    if (err) {
+      return console.log('Error occurred: ' + err);
+    }
+   
+  console.log(data); 
+  });
 
 }
 
