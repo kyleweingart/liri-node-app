@@ -19,6 +19,7 @@
   "homepage": "https://github.com/kyleweingart/liri-node-app#readme",
   "dependencies": {
     "dotenv": "^5.0.1",
+    "fs": "0.0.1-security",
     "json-colorz": "^0.2.7",
     "node-spotify-api": "^1.0.7",
     "request": "^2.85.0",

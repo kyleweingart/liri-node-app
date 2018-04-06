@@ -3,42 +3,41 @@ require("dotenv").config();
 
 // import packages and store in variable
 var keys = require("./keys.js");
-var Twitter = require('twitter');
-var Spotify = require('node-spotify-api');
-var request = require('request');
-var colorize = require('json-colorz');
+var Twitter = require("twitter");
+var Spotify = require("node-spotify-api");
+var request = require("request");
+var colorize = require("json-colorz");
+var fs = require("fs");
 
 // pass in API keys
 var sp = new Spotify(keys.spotify);
 var client = new Twitter(keys.twitter);
 
-
+// create parameters 
 var command = process.argv[2];
+var songName = process.argv[3];
 
+// run different commands based on parameter command input
 switch (command) {
-    case "my-tweets":
-      myTweets();
-      break;
-    
-    case "spotify-this-song":
-      spotifySong();
-      break;
-    
-    case "movie-this":
-      thisMovie();
-      break;
-    
-    case "do-what-it-says":
-      dowhatitSays();
-      break;
+  case "my-tweets":
+    myTweets();
+    break;
 
+  case "spotify-this-song":
+    spotifySong();
+    break;
+
+  case "movie-this":
+    thisMovie();
+    break;
+
+  case "do-what-it-says":
+    dowhatitSays();
+    break;
 }
-    
-  
-
-
 
 // command functions
+// =================================================================================================
 function myTweets() {
   var params = {
     screen_name: "rvapix1",
@@ -61,42 +60,58 @@ function myTweets() {
     }
   });
 }
-  
- 
 
 function spotifySong() {
-  var songName = process.argv[3];
-  // console.log(songName);
-  sp.search({ type: "track", query: songName }, function(err, data) {
-    if (err) {
-      return console.log("Error occurred: " + err);
+  if (process.argv.length <= 3) {
+    songName = "The Sign";
+    console.log(songName);
+    searchSpotifyAPI(5);
+  } else {
+    searchSpotifyAPI(0);
+  }
+}
+
+function searchSpotifyAPI(index) {
+  sp.search(
+    {
+      type: "track",
+      query: songName
+    },
+    function(err, data) {
+      if (err) {
+        return console.log("Error occurred: " + err);
+      }
+
+      console.log(
+        "Artist(s): " + JSON.stringify(data.tracks.items[index].artists[0].name)
+      );
+      console.log(
+        "Song Name: " + JSON.stringify(data.tracks.items[index].name)
+      );
+      console.log(
+        "Preview Link: " +
+          JSON.stringify(data.tracks.items[index].external_urls.spotify)
+      );
+      console.log(
+        "Album: " + JSON.stringify(data.tracks.items[index].album.name)
+      );
     }
-    // console.log(JSON.stringify(data,null,2));
-    // colorize(data.tracks.items[0]);
-    console.log(
-      "Artist(s): " + JSON.stringify(data.tracks.items[0].artists[0].name)
-    );
-    console.log("Song Name: " + JSON.stringify(data.tracks.items[0].name));
-    console.log(
-      "Preview Link: " +
-        JSON.stringify(data.tracks.items[0].external_urls.spotify)
-    );
-    console.log("Album: " + JSON.stringify(data.tracks.items[0].album.name));
-  });
+  );
 }
 
 function thisMovie() {
-  var movieName = process.argv[3];
+  var movieName;
+  if (process.argv.length <= 3) {
+    movieName = "Mr.Nobody";
+  } else {
+    movieName = process.argv[3];
+  }
+
   var queryUrl =
     "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=trilogy";
-  console.log(queryUrl);
-  console.log(movieName);
   request(queryUrl, function(error, response, body) {
     // If the request is successful
     if (!error && response.statusCode === 200) {
-      // Parse the body of the site and recover just the imdbRating
-      // (Note: The syntax below for parsing isn't obvious. Just spend a few moments dissecting it).
-      console.log(body);
       console.log("Title: " + JSON.parse(body).Title);
       console.log("Release Year: " + JSON.parse(body).Year);
       console.log("The movie's rating is: " + JSON.parse(body).imdbRating);
@@ -112,6 +127,16 @@ function thisMovie() {
 }
 
 function dowhatitSays() {
+  fs.readFile("random.txt", "utf8", function(error, data) {
+  if (error) {
+    return console.log(error);
+  }
+  console.log(data);
+  var dataArr = data.split(",");
+  console.log(dataArr);
+  command = dataArr[0];
+  console.log(command);
+})
 
 }
- 
+
