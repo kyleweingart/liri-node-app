@@ -15,7 +15,8 @@ var client = new Twitter(keys.twitter);
 
 // create parameters 
 var command = process.argv[2];
-var songName = process.argv[3];
+// var songName = process.argv[3];
+var param2 = process.argv[3];
 
 // run different commands based on parameter command input
 switch (command) {
@@ -43,7 +44,7 @@ function myTweets() {
     screen_name: "rvapix1",
     count: 20
   };
-  client.get("statuses/user_timeline", params, function(
+  client.get("statuses/user_timeline", params, function (
     error,
     tweets,
     response
@@ -52,9 +53,9 @@ function myTweets() {
       for (var key in tweets) {
         console.log(
           "Tweet: " +
-            tweets[key].text +
-            "  Time Created: " +
-            tweets[key].created_at
+          tweets[key].text +
+          "  Time Created: " +
+          tweets[key].created_at
         );
       }
     }
@@ -62,9 +63,8 @@ function myTweets() {
 }
 
 function spotifySong() {
-  if (process.argv.length <= 3) {
-    songName = "The Sign";
-    console.log(songName);
+  if (param2 === undefined) {
+    param2 = "The Sign";
     searchSpotifyAPI(5);
   } else {
     searchSpotifyAPI(0);
@@ -72,12 +72,11 @@ function spotifySong() {
 }
 
 function searchSpotifyAPI(index) {
-  sp.search(
-    {
+  sp.search({
       type: "track",
-      query: songName
+      query: param2
     },
-    function(err, data) {
+    function (err, data) {
       if (err) {
         return console.log("Error occurred: " + err);
       }
@@ -90,7 +89,7 @@ function searchSpotifyAPI(index) {
       );
       console.log(
         "Preview Link: " +
-          JSON.stringify(data.tracks.items[index].external_urls.spotify)
+        JSON.stringify(data.tracks.items[index].external_urls.spotify)
       );
       console.log(
         "Album: " + JSON.stringify(data.tracks.items[index].album.name)
@@ -100,16 +99,18 @@ function searchSpotifyAPI(index) {
 }
 
 function thisMovie() {
-  var movieName;
-  if (process.argv.length <= 3) {
-    movieName = "Mr.Nobody";
-  } else {
-    movieName = process.argv[3];
+  if (param2 === undefined) {
+    param2 = "Mr.Nobody";
   }
+  searchOMDB();
 
+}
+
+
+function searchOMDB() {
   var queryUrl =
-    "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=trilogy";
-  request(queryUrl, function(error, response, body) {
+    "http://www.omdbapi.com/?t=" + param2 + "&y=&plot=short&apikey=trilogy";
+  request(queryUrl, function (error, response, body) {
     // If the request is successful
     if (!error && response.statusCode === 200) {
       console.log("Title: " + JSON.parse(body).Title);
@@ -126,17 +127,35 @@ function thisMovie() {
   });
 }
 
+
+
 function dowhatitSays() {
-  fs.readFile("random.txt", "utf8", function(error, data) {
-  if (error) {
-    return console.log(error);
-  }
-  console.log(data);
-  var dataArr = data.split(",");
-  console.log(dataArr);
-  command = dataArr[0];
-  console.log(command);
-})
+  fs.readFile("random.txt", "utf8", function (error, data) {
+    if (error) {
+      return console.log(error);
+    }
+
+    var dataArr = data.split(",");
+
+    command = dataArr[0];
+    param2 = dataArr[1];
+
+
+    switch (command) {
+      case "my-tweets":
+        myTweets();
+        break;
+
+      case "spotify-this-song":
+        spotifySong();
+        break;
+
+      case "movie-this":
+        thisMovie();
+        break;
+
+
+    }
+  })
 
 }
-
